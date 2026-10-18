@@ -1,0 +1,60 @@
+<!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#5b5ce2"><link rel="manifest" href="manifest.json"><title>Τα Οικονομικά μου</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#172033;font-family:system-ui,-apple-system,sans-serif}.app{max-width:500px;margin:auto;min-height:100vh;padding-bottom:90px}
+header{padding:20px 16px 8px;display:flex;justify-content:space-between;align-items:center}h1{font-size:23px;margin:0}.muted{color:#788196;font-size:13px}
+.card{background:#fff;margin:10px 14px;padding:17px;border-radius:20px;box-shadow:0 5px 20px #1720330a}.hero{background:linear-gradient(135deg,#5b5ce2,#7778ef);color:white}.hero .muted{color:#e7e7ff}.big{font-size:32px;font-weight:850;margin:4px 0 14px}.row{display:flex;gap:9px}.mini{flex:1;background:#ffffff20;padding:11px;border-radius:14px}.mini b{display:block;margin-top:3px}
+.section{font-weight:800;padding:9px 18px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{border:1px solid #e7eaf1;border-radius:15px;padding:13px}.stat b{display:block;font-size:19px;margin-top:4px}.tabs{display:flex;gap:6px;margin:10px 14px}.tab{flex:1;padding:10px;border:1px solid #e1e5ed;background:#fff;border-radius:12px;font-weight:750;color:#747d91}.tab.active{background:#ececff;color:#5b5ce2;border-color:#d9d9ff}
+.progress{height:9px;background:#eceef5;border-radius:9px;overflow:hidden}.progress i{display:block;height:100%;background:#5b5ce2;border-radius:9px}.bar{display:flex;align-items:center;gap:8px;margin:12px 0}.bar label{width:90px;font-size:13px}.bar .progress{flex:1}.bar em{width:58px;text-align:right;font-style:normal;font-size:12px;font-weight:700}
+.exp{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #edf0f4}.exp:last-child{border:0}.ico{width:40px;height:40px;border-radius:13px;background:#f0f1ff;display:grid;place-items:center}.info{flex:1}.info b{font-size:14px}.info small{display:block;color:#8991a3;font-size:12px}.exp strong{font-size:13px}.actions button{border:0;background:#f1f2f7;border-radius:8px;margin-left:3px}
+.fab{position:fixed;bottom:17px;left:50%;transform:translateX(-50%);width:min(450px,calc(100% - 28px));background:#5b5ce2;color:#fff;border:0;border-radius:17px;padding:16px;font-weight:850;font-size:16px;box-shadow:0 10px 28px #5b5ce255}
+.modal{display:none;position:fixed;inset:0;background:#17203366;z-index:5;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-width:500px;margin:auto;border-radius:24px 24px 0 0;padding:20px;max-height:92vh;overflow:auto}.input{width:100%;padding:13px;margin:5px 0 9px;border:1px solid #dfe3eb;border-radius:12px;font-size:16px}.save{width:100%;border:0;background:#5b5ce2;color:white;padding:14px;border-radius:13px;font-weight:800;font-size:16px}.close{float:right;border:0;border-radius:50%;width:32px;height:32px}.nav{display:flex;gap:7px;margin:10px 14px}.nav button{flex:1;padding:9px;border:1px solid #e1e5ed;background:white;border-radius:11px;font-weight:700}.hidden{display:none}.advice{background:#f0faf6;border:1px solid #d7efe6}
+</style></head><body><div class="app">
+<header><div><h1>Τα οικονομικά μου</h1><div class="muted" id="month"></div></div><button onclick="openSettings()" style="border:0;background:none;font-size:21px">⚙️</button></header>
+<div class="nav"><button onclick="showView('home')">🏠 Αρχική</button><button onclick="showView('calendar')">📅 Ημερολόγιο</button><button onclick="showView('stats')">📊 Ανάλυση</button></div>
+
+<section id="home">
+<div class="card hero"><div class="muted">Διαθέσιμα</div><div class="big" id="balance">0 €</div><div class="row"><div class="mini"><div class="muted">Έσοδα</div><b id="income">0 €</b></div><div class="mini"><div class="muted">Έξοδα</div><b id="spent">0 €</b></div></div></div>
+<div class="tabs"><button class="tab active" onclick="setFilter('all',this)">Όλα</button><button class="tab" onclick="setFilter('family',this)">Οικογένεια</button><button class="tab" onclick="setFilter('personal',this)">Προσωπικά</button></div>
+<div class="card"><div class="row" style="justify-content:space-between"><b>🎯 Στόχος αποταμίευσης</b><b id="goalPct">0%</b></div><div class="muted" id="goalText"></div><div class="progress" style="margin-top:9px"><i id="goalBar"></i></div></div>
+<div class="section">💳 Τι μπορώ να ξοδέψω;</div><div class="card"><div class="grid"><div class="stat"><span class="muted">Σήμερα</span><b id="daily">0 €</b></div><div class="stat"><span class="muted">Μέχρι τέλος μήνα</span><b id="safeMonth">0 €</b></div></div></div>
+<div class="section">🧾 Πρόσφατα έξοδα</div><div class="card" id="recent"></div>
+<div class="section">💡 Ο βοηθός σου</div><div class="card advice" id="advice"></div></section>
+
+<section id="calendar" class="hidden"><div class="section">📅 Έξοδα ανά ημέρα</div><div class="card" id="calendarList"></div></section>
+<section id="stats" class="hidden"><div class="section">📊 Ανάλυση μήνα</div><div class="card" id="statsBox"></div><div class="section">👨‍👩‍👧‍👦 Οικογένεια vs 👤 Προσωπικά</div><div class="card" id="splitBox"></div></section>
+</div>
+<button class="fab" onclick="openExpense()">＋ Προσθήκη εξόδου</button>
+
+<div class="modal" id="expenseModal"><div class="sheet"><button class="close" onclick="closeModal('expenseModal')">×</button><h2 id="formTitle">Νέο έξοδο</h2><input type="hidden" id="editId">
+<input class="input" id="desc" placeholder="Περιγραφή"><input class="input" id="amount" type="number" step="0.01" placeholder="Ποσό (€)">
+<select class="input" id="category"><option>Σπίτι</option><option>Σούπερ μάρκετ</option><option>Μετακίνηση</option><option>Λογαριασμοί</option><option>Παιδιά</option><option>Υγεία</option><option>Διασκέδαση</option><option>Ρούχα</option><option>Καφές/Φαγητό</option><option>Άλλο</option></select>
+<select class="input" id="type"><option value="family">Οικογένεια</option><option value="personal">Προσωπικά</option></select><input class="input" id="date" type="date"><button class="save" onclick="saveExpense()">Αποθήκευση</button></div></div>
+
+<div class="modal" id="settingsModal"><div class="sheet"><button class="close" onclick="closeModal('settingsModal')">×</button><h2>⚙️ Ρυθμίσεις</h2><label class="muted">Μηνιαία έσοδα</label><input class="input" id="setIncome" type="number"><label class="muted">Στόχος αποταμίευσης</label><input class="input" id="setGoal" type="number"><label class="muted">Ήδη αποταμιευμένα</label><input class="input" id="setSaved" type="number"><button class="save" onclick="saveSettings()">Αποθήκευση ρυθμίσεων</button></div></div>
+
+<script>
+const KEY='oikonomika_full_v1';let D=JSON.parse(localStorage.getItem(KEY)||'null')||{income:2800,goal:700,saved:0,expenses:[]};let filter='all';
+const euro=n=>n.toLocaleString('el-GR',{style:'currency',currency:'EUR',maximumFractionDigits:2});
+const today=new Date(), ym=today.toISOString().slice(0,7);document.getElementById('month').textContent=today.toLocaleDateString('el-GR',{month:'long',year:'numeric'});
+function save(){localStorage.setItem(KEY,JSON.stringify(D))}
+function monthEx(){return D.expenses.filter(x=>x.date.slice(0,7)===ym)}
+function render(){let ex=monthEx(),spent=ex.reduce((s,x)=>s+x.amount,0),bal=D.income-spent;document.getElementById('balance').textContent=euro(bal);document.getElementById('income').textContent=euro(D.income);document.getElementById('spent').textContent=euro(spent);
+let days=new Date(today.getFullYear(),today.getMonth()+1,0).getDate()-today.getDate()+1,safe=Math.max(0,bal-D.goal)/days;document.getElementById('daily').textContent=euro(safe);document.getElementById('safeMonth').textContent=euro(Math.max(0,bal-D.goal));
+let pct=D.goal?Math.min(100,D.saved/D.goal*100):0;document.getElementById('goalPct').textContent=Math.round(pct)+'%';document.getElementById('goalText').textContent=euro(D.saved)+' / '+euro(D.goal);document.getElementById('goalBar').style.width=pct+'%';
+let shown=ex.filter(x=>filter==='all'||x.type===filter).sort((a,b)=>b.date.localeCompare(a.date));document.getElementById('recent').innerHTML=shown.length?shown.slice(0,12).map(card).join(''):'<span class="muted">Δεν υπάρχουν έξοδα.</span>';
+let by={};ex.forEach(x=>by[x.category]=(by[x.category]||0)+x.amount);let max=Math.max(1,...Object.values(by));document.getElementById('statsBox').innerHTML=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar"><label>${k}</label><div class="progress"><i style="width:${v/max*100}%"></i></div><em>${euro(v)}</em></div>`).join('')||'<span class="muted">Δεν υπάρχουν δεδομένα.</span>';
+let fam=ex.filter(x=>x.type==='family').reduce((s,x)=>s+x.amount,0),per=spent-fam;document.getElementById('splitBox').innerHTML=`<div class="bar"><label>Οικογένεια</label><div class="progress"><i style="width:${spent?fam/spent*100:0}%"></i></div><em>${euro(fam)}</em></div><div class="bar"><label>Προσωπικά</label><div class="progress"><i style="width:${spent?per/spent*100:0}%"></i></div><em>${euro(per)}</em></div>`;
+let dates={};ex.forEach(x=>(dates[x.date]??=[]).push(x));document.getElementById('calendarList').innerHTML=Object.entries(dates).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,arr])=>`<div><b>${new Date(d+'T12:00').toLocaleDateString('el-GR',{weekday:'short',day:'numeric',month:'short'})}</b>${arr.map(card).join('')}</div>`).join('')||'<span class="muted">Δεν υπάρχουν έξοδα.</span>';
+document.getElementById('advice').innerHTML=spent>D.income*.7?'⚠️ Έχεις φτάσει πάνω από το 70% των εσόδων σου. Πρόσεξε κυρίως τα μη απαραίτητα έξοδα.':`✅ Είσαι σε καλή πορεία. Το ασφαλές ημερήσιο όριο είναι περίπου ${euro(safe)}.`;
+save()}
+function card(x){return `<div class="exp"><div class="ico">${x.type==='family'?'👨‍👩‍👧‍👦':'👤'}</div><div class="info"><b>${esc(x.desc)}</b><small>${x.date} · ${esc(x.category)}</small></div><strong>−${euro(x.amount)}</strong><span class="actions"><button onclick="editExpense(${x.id})">✏️</button><button onclick="deleteExpense(${x.id})">🗑️</button></span></div>`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function openExpense(id=null){document.getElementById('formTitle').textContent=id?'Επεξεργασία εξόδου':'Νέο έξοδο';document.getElementById('editId').value=id||'';if(id){let x=D.expenses.find(x=>x.id===id);desc.value=x.desc;amount.value=x.amount;category.value=x.category;type.value=x.type;date.value=x.date}else{desc.value='';amount.value='';date.value=today.toISOString().slice(0,10)}document.getElementById('expenseModal').classList.add('show')}
+function editExpense(id){openExpense(id)}function deleteExpense(id){if(confirm('Να διαγραφεί το έξοδο;')){D.expenses=D.expenses.filter(x=>x.id!==id);render()}}
+function saveExpense(){let id=Number(editId.value),obj={id:id||Date.now(),desc:desc.value.trim(),amount:Number(amount.value),category:category.value,type:type.value,date:date.value};if(!obj.desc||obj.amount<=0||!obj.date)return;if(id)D.expenses=D.expenses.map(x=>x.id===id?obj:x);else D.expenses.push(obj);closeModal('expenseModal');render()}
+function setFilter(v,b){filter=v;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}
+function showView(v){['home','calendar','stats'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==v))}
+function openSettings(){setIncome.value=D.income;setGoal.value=D.goal;setSaved.value=D.saved;document.getElementById('settingsModal').classList.add('show')}
+function saveSettings(){D.income=Number(setIncome.value)||0;D.goal=Number(setGoal.value)||0;D.saved=Number(setSaved.value)||0;closeModal('settingsModal');render()}
+function closeModal(id){document.getElementById(id).classList.remove('show')}render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
